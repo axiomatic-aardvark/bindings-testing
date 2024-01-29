@@ -1,7 +1,7 @@
 use std::{error::Error, str::FromStr};
 
 use waku::{
-    waku_new, ContentFilter, Multiaddr, ProtocolId, Running, WakuNodeConfig, WakuNodeHandle
+    waku_default_pubsub_topic, waku_new, ContentFilter, Multiaddr, ProtocolId, Running, WakuNodeConfig, WakuNodeHandle
 };
 
 // mainnet ENR enrtree://AOADZWXPAJ56TIXA74PV7VJP356QNBIKUPRKR676BBOOELU5XDDKM@testnet.bootnodes.graphcast.xyz
@@ -46,7 +46,7 @@ fn setup_node_handle() -> std::result::Result<WakuNodeHandle<Running>, Box<dyn E
         node_handle.connect_peer_with_id(&peerid, None)?;
     }
 
-    let content_filter = ContentFilter::new(Some("/waku/2/graphcast-v0-mainnet/proto".to_string()), vec![]);
+    let content_filter = ContentFilter::new(Some(waku_default_pubsub_topic()), vec![]);
     node_handle.relay_subscribe(&content_filter)?;
     Ok(node_handle)
 }
