@@ -1,4 +1,4 @@
-use std::{borrow::Cow, error::Error, str::FromStr, thread::sleep, time::Duration};
+use std::{borrow::Cow, error::Error, str::FromStr, thread::sleep, time::{Duration, SystemTime, UNIX_EPOCH}};
 
 use waku::{
     waku_default_pubsub_topic, waku_new, waku_set_event_callback, ContentFilter, Multiaddr, ProtocolId, Running, WakuContentTopic, WakuMessage, WakuMessageVersion, WakuNodeConfig, WakuNodeHandle
@@ -61,6 +61,12 @@ fn main() {
     });
 
     loop {
+        let start = SystemTime::now();
+        let since_the_epoch = start
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards");
+        let timestamp = since_the_epoch.as_secs() as usize;
+
         let payload = b"Hello, Waku!".to_vec();
         let meta = b"metadata".to_vec();
         let content_topic = WakuContentTopic {
@@ -69,12 +75,18 @@ fn main() {
             content_topic_name: "test".to_string().into(),
             encoding: waku::Encoding::Proto,
         };
-        let version = WakuMessageVersion::default();
-        let timestamp = 1622540000;
+
+        let version = 0;
         let ephemeral = false;
 
-        let waku_message =
-            WakuMessage::new(payload, content_topic, version, timestamp, meta, ephemeral);
+        let waku_message = WakuMessage::new(
+            payload,
+            content_topic,
+            version,
+            timestamp,
+            meta,
+            ephemeral,
+        );
 
         println!("Sending message");
 
